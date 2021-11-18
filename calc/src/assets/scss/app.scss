@@ -1,0 +1,46 @@
+.flex-container{
+  display: flex;
+}
+.ba-row{
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 10px;
+  &__name{
+    flex-grow: 1;
+    width: 25%;
+    margin-right: 40px;
+  }
+  &__index{
+    width: 60px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+  &__dots{
+    border-bottom: 1px dotted gray;
+  }
+  &__slider, &__dots{
+    flex-grow: 1;
+    width: 60%;
+  }
+  &__value{
+    font-weight: bold;
+    width: 60px;
+    text-align: right;
+  }
+  .slider-tooltip{
+    pointer-events: none;
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  &:hover, .slider-focused{
+    .slider-tooltip{
+      opacity: 1;
+    }
+  }
+}
+
+.ba-total-price{
+  font-weight: 800;
+  font-size: 36px;
+}

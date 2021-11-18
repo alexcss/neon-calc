@@ -22,8 +22,7 @@ try {
 		$data[] = $row;
 	}
 
-	$response         = [];
-	$response['data'] =  $data;
+	$response =  $data;
 
 	echo json_encode($response, JSON_PRETTY_PRINT);
 
