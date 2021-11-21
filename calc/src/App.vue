@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h2 class="section-title text-center">Estimate your price</h2>
+    <h2 class="ba-section-title text-center">Estimate your price</h2>
     <div class="ba-row" v-for="(row, index) in pricesLive" :key="index">
       <span class="ba-row__name">
         {{ row.parameter }}
@@ -8,7 +8,7 @@
       <span class="ba-row__index" v-if="row.type != 1">
         {{ formatThousands(row.current) }}
       </span>
-      <Slider @change="onChange" @update="onChange" :format="formatPrice" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider"/>
+      <Slider @change="onChange" :format="formatPrice" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider"/>
       <span class="ba-row__dots" v-if="row.type == 1"></span>
       <span class="ba-row__value">
         {{ getParameterTotal(row.included, row.current, row.value, row.type, true) }}
@@ -33,7 +33,7 @@
       <span class="ba-row__index" v-if="row.type != 1">
         {{ formatThousands(row.current) }}
       </span>
-      <Slider :disabled="true" :tooltips="false" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider"/>
+      <Slider :tooltips="true" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider ba-row__slider--disabled"/>
       <span class="ba-row__dots" v-if="row.type == 1"></span>
       <span class="ba-row__value">
         {{ getParameterTotal(row.included, row.current, row.value, row.type, true) }}
@@ -66,9 +66,6 @@ export default {
     }
   },
   methods: {
-    onChange($event){
-      console.log($event);
-    },
     getParameterTotal(included, current, value, type, format) {
       let total = 0;
       switch (type) {
@@ -105,9 +102,10 @@ export default {
       return '+' + ((value - 1) * 100).toFixed(0) + '%';
     },
     formatThousands(value){
-      if(value <= 1000) return value;
+      let formatter = new Intl.NumberFormat('en-US');
+      if(value <= 1000) return formatter.format(value);
 
-      return (value/1000).toFixed(0) + 'k';
+      return formatter.format((value/1000).toFixed(0)) + 'k';
     },
     getData() {
       this.isLoading = true;
@@ -115,6 +113,9 @@ export default {
           .get(this.api)
           .then(response => {
             this.data = response.data;
+            this.data.forEach((item, index, array) => {
+              array[index].current = item.included;
+            });
             console.log(this.data);
             this.isLoading = false
           })
@@ -139,37 +140,13 @@ export default {
   },
   computed: {
     pricesLive() {
-      let prices = this.data.filter(el => el.price_id == 1 && el.live == 1)
-      return prices.map(el => {
-        el.current = el.included * 20;
-        return el
-      })
+      return this.data.filter(el => el.price_id == 1 && el.live == 1)
     },
     pricesComing() {
-      let prices = this.data.filter(el => el.price_id == 1 && el.live == 0)
-      return prices.map(el => {
-        el.current = el.included * 20;
-        return el
-      })
+      return this.data.filter(el => el.price_id == 1 && el.live == 0)
     }
   }
 }
 </script>
 
-<style lang="scss">
-.button {
-  color: #fff;
-  background: #5956E9;
-  border: 1px solid #5956E9;
-  border-radius: 5px 5px;
-  padding: 15px 30px;
-  display: inline-block;
-  font-size: 15px;
-  line-height: 24px;
-  font-weight: 600;
-  margin: 30px 0 5px 0;
-  transition: all 0.3s ease-in-out;
-  -webkit-transition: all 0.3s ease-in-out;
-}
-</style>
 <style src="@vueform/slider/themes/default.css"></style>
