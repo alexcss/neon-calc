@@ -1,44 +1,53 @@
 <template>
-  <div class="container">
-    <h2 class="ba-section-title text-center">Estimate your price</h2>
-    <div class="ba-row" v-for="(row, index) in pricesLive" :key="index">
+  <div class="container ba-container">
+    <template v-if="pricesLive.length > 0">
+      <h2 class="ba-section-title text-center">Estimate your price</h2>
+      <div class="ba-row" v-for="(row, index) in pricesLive" :key="index">
       <span class="ba-row__name">
         {{ row.parameter }}
       </span>
-      <span class="ba-row__index" v-if="row.type != 1">
+        <span class="ba-row__index" v-if="row.type != 1">
         {{ formatThousands(row.current) }}
       </span>
-      <Slider @change="onChange" :format="formatPrice" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider"/>
-      <span class="ba-row__dots" v-if="row.type == 1"></span>
-      <span class="ba-row__value">
+        <Slider :format="formatTooltip" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider"/>
+        <span class="ba-row__dots" v-if="row.type == 1"></span>
+        <span class="ba-row__value">
         {{ getParameterTotal(row.included, row.current, row.value, row.type, true) }}
       </span>
-    </div>
-    <div class="ba-total-row">
-      <div class="ba-total-price">
-        <div class="ba-total-price__sup">Your price is</div>
-        <span>{{ getTotalPrice() }}</span>
-        <span class="ba-total-price__sub">/mo</span>
       </div>
-      <a href="" class="ba-button">
-        Get Started
-      </a>
-    </div>
-    <!-- /.ba-total-row -->
-    <h2 class="ba-section-title-alt">Coming soon:</h2>
-    <div class="ba-row" v-for="(row, index) in pricesComing" :key="index">
-      <span class="ba-row__name">
-        {{ row.parameter }}
-      </span>
-      <span class="ba-row__index" v-if="row.type != 1">
-        {{ formatThousands(row.current) }}
-      </span>
-      <Slider :tooltips="true" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider ba-row__slider--disabled"/>
-      <span class="ba-row__dots" v-if="row.type == 1"></span>
-      <span class="ba-row__value">
-        {{ getParameterTotal(row.included, row.current, row.value, row.type, true) }}
-      </span>
-    </div>
+      <div class="ba-total-row">
+        <div class="ba-total-price">
+          <div class="ba-total-price__sup">Your price is</div>
+          <span>{{ getTotalPrice() }}</span>
+          <span class="ba-total-price__sub">/mo</span>
+        </div>
+        <a href="" class="ba-button">
+          Get Started
+        </a>
+      </div>
+      <!-- /.ba-total-row -->
+    </template>
+    <template v-if="pricesComing.length > 0">
+      <h2 class="ba-section-title-alt">Coming soon:</h2>
+      <div class="ba-row" v-for="(row, index) in pricesComing" :key="index">
+        <span class="ba-row__name">
+          {{ row.parameter }}
+        </span>
+
+        <span class="ba-row__index" v-if="row.type != 1">
+          {{ formatThousands(row.current) }}
+        </span>
+        <Slider :format="formatTooltip" :tooltips="true" showTooltip="always" v-model="row.current" :min="row.included" :max="row.max || 100" v-if="row.type != 1" class="ba-row__slider ba-row__slider--disabled"/>
+
+        <span class="ba-row__dots" v-if="row.type == 1"></span>
+
+        <span class="ba-row__value">
+          {{ getParameterTotal(row.included, row.current, row.value, row.type, true) }}
+        </span>
+      </div>
+    </template>
+
+    <Loading :isLoading="isLoading"/>
   </div>
 
 </template>
@@ -47,11 +56,12 @@
 /* eslint-disable */
 import axios from "axios";
 import Slider from '@vueform/slider'
+import Loading from './components/Loading'
 
 export default {
   name: 'App',
   components: {
-    Slider
+    Slider, Loading
   },
   data() {
     return {
@@ -59,7 +69,7 @@ export default {
       isLoading: true,
       api: "https://neonpanel.com/php/api.php",
       data: [],
-      formatPrice: {
+      formatTooltip: {
         thousand: ',',
         decimals: 0
       }
@@ -79,15 +89,15 @@ export default {
           total = (1 + (current - included) * value / 100)
           break;
       }
-      if(format && (type == 1 || type == 2))
+      if (format && (type == 1 || type == 2))
         return this.formatCurrency(+total)
 
-      if(format && (type == 3))
+      if (format && (type == 3))
         return this.formatPercent(+total)
 
       return +total
     },
-    formatCurrency(value){
+    formatCurrency(value) {
       let formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -98,14 +108,14 @@ export default {
 
       return formatter.format(value);
     },
-    formatPercent(value){
+    formatPercent(value) {
       return '+' + ((value - 1) * 100).toFixed(0) + '%';
     },
-    formatThousands(value){
+    formatThousands(value) {
       let formatter = new Intl.NumberFormat('en-US');
-      if(value <= 1000) return formatter.format(value);
+      if (value <= 1000) return formatter.format(value);
 
-      return formatter.format((value/1000).toFixed(0)) + 'k';
+      return formatter.format((value / 1000).toFixed(0)) + 'k';
     },
     getData() {
       this.isLoading = true;
