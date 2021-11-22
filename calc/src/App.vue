@@ -1,7 +1,7 @@
 <template>
   <div class="container ba-container">
     <template v-if="pricesLive.length > 0">
-      <h2 class="ba-section-title text-center">Estimate your price</h2>
+<!--      <h2 class="ba-section-title text-center">Estimate your price</h2>-->
       <div class="ba-row" v-for="(row, index) in pricesLive" :key="index">
       <span class="ba-row__name">
         {{ row.parameter }}
@@ -126,7 +126,6 @@ export default {
             this.data.forEach((item, index, array) => {
               array[index].current = item.included;
             });
-            console.log(this.data);
             this.isLoading = false
           })
           .catch(error => {

@@ -15,6 +15,7 @@ export default {
 
 <style lang="scss">
 $primary-color: #5956E9;
+$ligth-gray: #fafbfc;
 
 .lds-ring-wrap{
   position: absolute;
@@ -26,7 +27,7 @@ $primary-color: #5956E9;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  background: rgba(white, 0.8);
+  background: $ligth-gray;
 }
 .lds-ring {
   display: inline-block;
